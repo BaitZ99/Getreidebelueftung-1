@@ -1,0 +1,21 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Getreidebelüftung</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Getreidebelüftung prüfen</h1>
+    <label for="grainTemp">Getreidetemperatur (°C):</label>
+    <input type="number" id="grainTemp"><br>
+    <label for="airTemp">Außentemperatur (°C):</label>
+    <input type="number" id="airTemp"><br>
+    <label for="rh">Relative Luftfeuchte (%):</label>
+    <input type="number" id="rh"><br>
+    <button onclick="checkConditions()">Prüfen</button>
+    <p id="result"></p>
+    <script src="script.js"></script>
+</body>
+</html>
