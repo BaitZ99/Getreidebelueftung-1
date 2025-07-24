@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Getreidebelüftung</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 1rem; background: #f9f9f9; }
+    .result { margin-top: 1rem; font-weight: bold; }
+    canvas { max-width: 100%; }
+    table { margin-top: 1rem; border-collapse: collapse; }
+    td, th { border: 1px solid #ccc; padding: 0.5rem; text-align: center; }
+    .green { background-color: #d4edda; }
+    .yellow { background-color: #fff3cd; }
+    .red { background-color: #f8d7da; }
+    .gray { background-color: #e2e3e5; }
+  </style>
+</head>
+<body>
+  <h1>Getreidebelüftung nach Theimer</h1>
+  <label>Getreidetemperatur (°C): <input type="number" id="grainTemp" /></label><br/>
+  <label>Außentemperatur (°C): <input type="number" id="outsideTemp" /></label><br/>
+  <label>Relative Luftfeuchte (%): <input type="number" id="humidity" /></label><br/>
+  <button onclick="evaluate()">Prüfen</button>
+
+  <div class="result" id="resultText"></div>
+  <canvas id="belueftungChart"></canvas>
+
+  <script>
+    function evaluate() {
+      const tg = parseFloat(document.getElementById("grainTemp").value);
+      const ta = parseFloat(document.getElementById("outsideTemp").value);
+      const rf = parseFloat(document.getElementById("humidity").value);
+      const dt = tg - ta;
+
+      let allowed = false;
+      let reason = "";
+
+      if (dt >= 5) {
+        allowed = true;
+        reason = "Faustregel erfüllt (Außenluft mindestens 5 °C kälter)";
+      } else if (tg === 15 && dt === 5 && rf <= 85) {
+        allowed = true;
+        reason = "Laut Theimer-Tabelle erlaubt";
+      } else {
+        reason = "Nicht eindeutig erlaubt laut Faustregel oder Tabelle";
+      }
+
+      document.getElementById("resultText").innerText = allowed
+        ? "✅ Belüftung erlaubt – " + reason
+        : "⚠️ Belüftung nicht empfohlen – " + reason;
+
+      renderChart(tg, ta);
+    }
+
+    function renderChart(tg, ta) {
+      const ctx = document.getElementById("belueftungChart").getContext("2d");
+      if (window.chart) window.chart.destroy();
+      window.chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length: 21}, (_, i) => i),
+          datasets: [
+            {
+              label: 'Faustregel (ΔT = 5 °C)',
+              borderColor: 'blue',
+              borderDash: [5, 5],
+              data: Array.from({length: 21}, (_, i) => i - 5)
+            },
+            {
+              label: 'Ihr Punkt',
+              data: [{x: ta, y: tg}],
+              backgroundColor: 'red',
+              type: 'scatter',
+              pointRadius: 6
+            }
+          ]
+        },
+        options: {
+          scales: {
+            x: { title: { display: true, text: 'Außentemperatur (°C)' } },
+            y: { title: { display: true, text: 'Getreidetemperatur (°C)' } }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
